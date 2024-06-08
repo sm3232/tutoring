@@ -1,2 +1,1 @@
-# tutoring
-I tutor programming on the side
+I tutor programming on the side, this is the repo for that

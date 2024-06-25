@@ -1,17 +1,33 @@
 import pygame
 import math
 import random
+from pygame.constants import BLEND_ALPHA_SDL2
+
+from pygame.rect import Rect
 
 window_width = 900
 window_height = 600
 
 pygame.init()
+
+
+
+
 screen = pygame.display.set_mode((window_width, window_height))
+
 clock = pygame.time.Clock()
 running = True
 dt = ground_cycle = 0
 player_frames = [pygame.image.load("./run1.png").convert(), pygame.image.load("./run2.png").convert()]
+numbers = pygame.image.load("./numbers.png").convert_alpha()
+
+
+
 ground_image = pygame.image.load("./ground.png").convert()
+
+
+
+
 cactus_image = pygame.image.load("./cactus.png").convert()
 ground_speed = 10
 ground_width = ground_image.get_width()
@@ -28,6 +44,20 @@ class Cactus(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.image = cactus_image
         self.rect = self.image.get_rect()
+
+
+nw = 20
+nh = 20
+class Number(pygame.sprite.Sprite):
+    def __init__(self, number_, pos_):
+        pygame.sprite.Sprite.__init__(self)
+        self.number = number_
+        self.offsetx = int(self.number * nw)
+        self.image = pygame.Surface((nw, nh), pygame.SRCALPHA)
+        self.rect = self.image.blit(numbers, (0, 0), (self.offsetx, 0, nw, nh))
+        self.rect.centerx = pos_[0] + 12
+        self.rect.centery = pos_[1] + 12
+
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
@@ -69,6 +99,10 @@ class Player(pygame.sprite.Sprite):
 player = Player()
 sprites = pygame.sprite.Group()
 sprites.add(player)
+nbs = pygame.sprite.Group()
+scorex = window_width - (nw * 3) 
+score = 0
+
 cacti = []
 
 while running:
@@ -80,12 +114,30 @@ while running:
     
     #render
     screen.fill("white")
+
+
+
     screen.blit(ground_image, (ground_cycle, window_height - ground_height))
+    
+
+
+
     screen.blit(ground_image, (ground_width + ground_cycle, window_height - ground_height))
     if ground_cycle <= -ground_width:
         screen.blit(ground_image, (ground_width + ground_cycle, 0))
         ground_cycle = 0
     sprites.draw(screen)
+
+
+
+    nbs.empty()
+    scorestr = str(score)
+    while len(scorestr) < 6:
+        scorestr = '0' + scorestr
+    for i in range(0, 6):
+        nbs.add(Number(int(scorestr[5 - i]), (scorex - ((i) * nw), 0)))
+
+    nbs.draw(screen);
 
     #logic
     ground_cycle -= ground_speed
@@ -112,6 +164,7 @@ while running:
     if keys[pygame.K_ESCAPE]:
         pygame.quit()
     
+    score += 1
     pygame.display.flip()
     dt = clock.tick(60) / 1000
 
